@@ -21,3 +21,6 @@ let spread = 1.0;
 let dragged = null;
 let grabDX = 0;
 let grabDY = 0;
+
+// default state for shape
+let shapeKey = "c";

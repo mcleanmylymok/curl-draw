@@ -5,7 +5,6 @@ function buzzer(colour, size) {
   noStroke();
   fill(colour);
   circle(cx, cy, houseDiam * size);
-
 }
 
 // boards function
@@ -30,18 +29,50 @@ function createRocks(num) {
     list.push({
       x: cx + cos(angle) * distance,
       y: cy + sin(angle) * distance,
-      clr: i % 2 === 0 ? oppositionRockClr : homeTeamRock
+      clr: i % 2 === 0 ? oppositionRockClr : homeTeamRock,
     });
   }
   return list;
 }
 
 // drawRocks
-function drawRocks(list, diam) {
+function drawRocks(list, size) {
   noStroke();
 
   for (let r of list) {
     fill(r.clr);
-    circle(r.x, r.y, diam)
+
+    // logic for changing shapes
+    if (shapeKey === "c") {
+      circle(r.x, r.y, size);
+    } else if (shapeKey === "r") {
+      square(r.x - size / 2, r.y - size / 2, size);
+    } else if (shapeKey === "l") {
+      push();
+      stroke(r.clr);
+      strokeWeight(16);
+      line(r.x, r.y, r.x * 0.5, r.y * 0.5);
+      pop();
+    }
   }
+}
+// calculates distance from segment
+function distToSegment(px, py, x1, y1, x2, y2) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+
+  if (dx === 0 && dy === 0) {
+    return dist(px, py, x1, y1);
+  }
+
+  const t = constrain(
+    ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy),
+    0,
+    1,
+  );
+
+  const closestX = x1 + t * dx;
+  const closestY = y1 + t * dy;
+
+  return dist(px, py, closestX, closestY);
 }
