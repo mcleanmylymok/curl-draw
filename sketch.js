@@ -31,28 +31,47 @@ function draw() {
   drawRocks(rockList, rockD);
 }
 function keyPressed() {
-  const pressedKey = key.toLowerCase();
+  const currentKey = key;
 
-  if (pressedKey === "c" || pressedKey === "r" || pressedKey === "l") {
-    shapeKey = pressedKey;
-    redraw();
-  } else if (pressedKey === "p") {
-    // storing the base prompt
-    const filePrompt = prompt(
-      "What should we call your sketch, eh?",
-      "curl_art",
-    );
-    // Check if export sequence is initialized
-    if (!filePrompt) {
-      return false;
+  // Uppercase applies the shape to every rock.
+  if (["C", "R", "L"].includes(currentKey)) {
+    const shape = currentKey.toLowerCase();
+
+    for (const rock of rockList) {
+      rock.shape = shape;
     }
 
-    // format prompt
-    const formatPrompt = prompt("What do you want to save your sketch as, eh? You may save it as a jpg, png, webp").toLowerCase();
+    redraw();
+    return false;
+  }
 
-    // if a file format is not selected…
-    if (formatPrompt !== "png" && formatPrompt !== "jpg" && formatPrompt !== "webp") {
-      alert("Eh buddy, you forgot to select a format. In order to save your sketch bud, you must select a format of either jpg, png, or webp. Got it, eh?");
+  // Lowercase applies the shape to the first half.
+  if (["c", "r", "l"].includes(currentKey)) {
+    const halfCount = Math.floor(rockList.length / 2);
+
+    for (let i = 0; i < halfCount; i++) {
+      rockList[i].shape = currentKey;
+    }
+
+    redraw();
+    return false;
+  }
+
+  // Keep E as the export key.
+  if (currentKey.toLowerCase() === "e") {
+    const filePrompt = prompt("What should we call your sketch, eh?", "curl_art");
+    if (!filePrompt) return false;
+
+    const formatInput = prompt(
+      "What do you want to save your sketch as? Choose jpg, png, or webp.",
+      "jpg"
+    );
+    if (formatInput === null) return false;
+
+    const formatPrompt = formatInput.toLowerCase();
+
+    if (!["png", "jpg", "webp"].includes(formatPrompt)) {
+      alert("Please choose jpg, png, or webp.");
       return false;
     }
 
@@ -61,7 +80,6 @@ function keyPressed() {
 
   return false;
 }
-
 // === USER INTERACTIVITY ===
 function mousePressed() {
   // search backwards and pick the top one first
@@ -69,10 +87,15 @@ function mousePressed() {
     let r = rockList[i];
     let hit = false;
 
-    if (shapeKey === "c" || shapeKey === "r") {
+    if (r.shape === "c") {
       hit = dist(mouseX, mouseY, r.x, r.y) < rockD / 2;
-    } else if (shapeKey === "l") {
-      hit = distToSegment(mouseX, mouseY, r.x, r.y, r.x * 0.5, r.y * 0.5) < 15;
+    } else if (r.shape === "r") {
+      hit =
+        abs(mouseX - r.x) < rockD / 2 &&
+        abs(mouseY - r.y) < rockD / 2;
+    } else if (r.shape === "l") {
+      hit =
+        distToSegment(mouseX, mouseY, r.x, r.y, r.x * 0.5, r.y * 0.5) < 15;
     }
 
     //  checking hit

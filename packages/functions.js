@@ -30,6 +30,7 @@ function createRocks(num) {
       x: cx + cos(angle) * distance,
       y: cy + sin(angle) * distance,
       clr: i % 2 === 0 ? oppositionRockClr : homeTeamRock,
+      shape: "c"
     });
   }
   return list;
@@ -43,11 +44,11 @@ function drawRocks(list, size) {
     fill(r.clr);
 
     // logic for changing shapes
-    if (shapeKey === "c") {
+    if (r.shape === "c") {
       circle(r.x, r.y, size);
-    } else if (shapeKey === "r") {
+    } else if (r.shape === "r") {
       square(r.x - size / 2, r.y - size / 2, size);
-    } else if (shapeKey === "l") {
+    } else if (r.shape === "l") {
       push();
       stroke(r.clr);
       strokeWeight(16);
