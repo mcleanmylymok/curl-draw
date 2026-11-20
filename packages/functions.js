@@ -30,7 +30,7 @@ function createRocks(num) {
       x: cx + cos(angle) * distance,
       y: cy + sin(angle) * distance,
       clr: i % 2 === 0 ? oppositionRockClr : homeTeamRock,
-      shape: "c"
+      shape: "c",
     });
   }
   return list;
@@ -77,3 +77,18 @@ function distToSegment(px, py, x1, y1, x2, y2) {
 
   return dist(px, py, closestX, closestY);
 }
+
+// together
+function togetherLine(list) {
+  push();
+  stroke(80);
+  strokeWeight(2);
+
+  // drawing the line
+  for (let i = 0; i < list.length - 1; i++) {
+    line(list[i].x, list[i].y, list[i + 1].x, list[i + 1].y);
+  }
+  pop();
+}
+
+

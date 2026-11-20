@@ -17,10 +17,13 @@ let cx, cy, houseDiam;
 let rockD = 30;
 let spread = 1.0;
 
-// interactivity 
+// interactivity
 let dragged = null;
 let grabDX = 0;
 let grabDY = 0;
 
 // default state for shape
 let shapeKey = "c";
+
+// together for together mode
+let togetherState = false;

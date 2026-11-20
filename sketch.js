@@ -7,7 +7,7 @@ function setup() {
   const boardThickness = 40;
   cx = random(
     boardThickness + houseRadius,
-    width - boardThickness - houseRadius
+    width - boardThickness - houseRadius,
   );
   cy = random(houseRadius, height - houseRadius);
   rockList = createRocks(15);
@@ -25,9 +25,16 @@ function draw() {
   strokeWeight(40);
   stroke(boardClr);
   circle(cx, cy, houseDiam);
-  // buzzer
 
+  // buzzer
   buzzer(buzzerClr, 0.5);
+
+  // together logic
+  if (togetherState) {
+    togetherLine(rockList);
+  }
+
+  // drawing rocks
   drawRocks(rockList, rockD);
 }
 function keyPressed() {
@@ -59,26 +66,38 @@ function keyPressed() {
 
   // Keep E as the export key.
   if (currentKey.toLowerCase() === "e") {
-    const filePrompt = prompt("What should we call your sketch, eh?", "curl_art");
+    const filePrompt = prompt(
+      "What should we call your sketch, eh?",
+      "curl_art",
+    );
     if (!filePrompt) return false;
 
     const formatInput = prompt(
-      "What do you want to save your sketch as? Choose jpg, png, or webp.",
-      "jpg"
+      "What do you want to save your sketch as? Choose jpg, png,webp or pdf.",
+      "jpg",
     );
     if (formatInput === null) return false;
 
     const formatPrompt = formatInput.toLowerCase();
 
-    if (!["png", "jpg", "webp"].includes(formatPrompt)) {
-      alert("Please choose jpg, png, or webp.");
+    if (!["png", "jpg", "webp", "pdf"].includes(formatPrompt)) {
+      alert("Please choose jpg, png, webp, or pdf.");
       return false;
     }
 
-    saveCanvas(filePrompt.trim(), formatPrompt);
+    if (formatPrompt === "pdf") {
+      saveCanvasAsPdf(filePrompt.trim());
+    } else {
+      saveCanvas(filePrompt.trim(), formatPrompt);
+    }
   }
 
-  return false;
+  // keyboard logic for together Mode
+  if (currentKey.toLowerCase() === "t") {
+    togetherState = !togetherState;
+    redraw();
+    return false;
+  }
 }
 // === USER INTERACTIVITY ===
 function mousePressed() {
@@ -90,12 +109,9 @@ function mousePressed() {
     if (r.shape === "c") {
       hit = dist(mouseX, mouseY, r.x, r.y) < rockD / 2;
     } else if (r.shape === "r") {
-      hit =
-        abs(mouseX - r.x) < rockD / 2 &&
-        abs(mouseY - r.y) < rockD / 2;
+      hit = abs(mouseX - r.x) < rockD / 2 && abs(mouseY - r.y) < rockD / 2;
     } else if (r.shape === "l") {
-      hit =
-        distToSegment(mouseX, mouseY, r.x, r.y, r.x * 0.5, r.y * 0.5) < 15;
+      hit = distToSegment(mouseX, mouseY, r.x, r.y, r.x * 0.5, r.y * 0.5) < 15;
     }
 
     //  checking hit
@@ -121,4 +137,27 @@ function mouseDragged() {
 // mouseReleased
 function mouseReleased() {
   dragged = null;
+}
+
+// utility from pdfJS
+function saveCanvasAsPdf(fileName) {
+  const canvas = document.querySelector("#sketch canvas");
+
+  if (!canvas) {
+    alert("Could not find the sketch canvas.");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const pdfWidth = 612;
+  const pdfHeight = pdfWidth * (canvas.height / canvas.width);
+  const pdf = new jsPDF({
+    orientation: "landscape",
+    unit: "pt",
+    format: [pdfWidth, pdfHeight],
+  });
+
+  const image = canvas.toDataURL("image/png");
+  pdf.addImage(image, "PNG", 0, 0, pdfWidth, pdfHeight);
+  pdf.save(`${fileName}.pdf`);
 }
